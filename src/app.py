@@ -32,6 +32,9 @@ def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
 # generate sitemap with all your endpoints
+@app.route('/')
+def sitemap():
+    return generate_sitemap(app)
 # Endpoint para listar o crear usuarios
 @app.route('/user', methods=['GET', 'POST'])
 def handle_user():
@@ -81,13 +84,14 @@ def handle_character():
         return jsonify({"msg": "Character created"}), 201
 
 # Endpoint para manejar un personaje específico por id (PUT, DELETE)
-@app.route("/character/<int:id>", methods=["PUT", "DELETE"])
+@app.route("/character/<int:id>", methods=["PUT", "DELETE", "GET"])
 def update_character(id):
     character = Character.query.get(id)
     if not character:
         return jsonify({"msg": f"Character with id {id} not found"}), 404
-
-    if request.method == 'PUT':
+    if request.method == 'GET':
+        return jsonify(character.to_dict()), 200
+    elif request.method == 'PUT':
         data = request.get_json()
         character.name = data["name"]
         db.session.commit()
